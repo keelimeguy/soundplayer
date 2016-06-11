@@ -6,13 +6,16 @@ package SoundPlayer;
  * with edits by keelimeguy
  */
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
@@ -26,18 +29,27 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SoundPlayer extends Thread implements LineListener {
 
+	private URL location = null;
+	private File file = null;
+
 	/**
 	 * this flag indicates whether the playback completes or not.
 	 */
 	private boolean playCompleted, flag;
 	private int start = 0, end = 0;
 	private String path = null;
-	private boolean playing = false, looping = false, sound = false;
+	private boolean playing = false, looping = false, sound = false, reset = false;
 	private Clip audioClip;
 
 	public void run() {
-		while (true)
+		while (true){
+			try {
+				Thread.sleep(2);
+			} catch (InterruptedException ex) {
+				ex.printStackTrace();
+			}
 			if (playing) play(path);
+		}
 	}
 
 	/**
@@ -48,8 +60,10 @@ public class SoundPlayer extends Thread implements LineListener {
 		//File audioFile = new File(audioFilePath);
 
 		try {
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(getClass().getResource(audioFilePath));//audioFile);
-
+			if (location == null) location = Example.class.getProtectionDomain().getCodeSource().getLocation();
+			if (file == null) file = new File(location.getFile()).getParentFile();
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream((new File(file + audioFilePath)).toURI().toURL());//audioFile);
+			System.out.println("Playing: " + (new File(file + audioFilePath)).toString());
 			AudioFormat format = audioStream.getFormat();
 
 			DataLine.Info info = new DataLine.Info(Clip.class, format);
@@ -60,10 +74,14 @@ public class SoundPlayer extends Thread implements LineListener {
 
 			audioClip.open(audioStream);
 
+			if (reset) reset = false;
+
 			if (looping) {
-				//FloatControl gainControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
-				//gainControl.setValue(-20.0f);
+				FloatControl gainControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
+				gainControl.setValue(-20.0f);
+				//System.out.println(start);
 				if (start != end) audioClip.setLoopPoints(start, end);
+				//System.out.println(audioClip.getFrameLength());
 				audioClip.loop(Clip.LOOP_CONTINUOUSLY);
 			} else {
 				audioClip.start();
@@ -75,13 +93,14 @@ public class SoundPlayer extends Thread implements LineListener {
 				}
 				// wait for the playback completes
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(2);
 				} catch (InterruptedException ex) {
 					ex.printStackTrace();
 				}
+				if (reset) break;
 
 			}
-			if (playCompleted) {
+			if (playCompleted || reset) {
 				playing = false;
 				audioClip.removeLineListener(this);
 			}
@@ -96,6 +115,9 @@ public class SoundPlayer extends Thread implements LineListener {
 		} catch (IOException ex) {
 			System.out.println("Error playing the audio file.");
 			ex.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("Error playing the audio file.");
+			e.printStackTrace();
 		}
 
 	}
@@ -109,6 +131,7 @@ public class SoundPlayer extends Thread implements LineListener {
 	}
 
 	public void playMusic(String audioFilePath, int start, int end) {
+		System.out.println("PLAY");
 		path = audioFilePath;
 		playing = true;
 		playCompleted = false;
@@ -125,14 +148,13 @@ public class SoundPlayer extends Thread implements LineListener {
 		looping = false;
 	}
 
-	public void stopSound() {
-		if (playing) {
-			audioClip.stop();
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+	public void reset() {
+		reset = true;
+		try {
+			System.out.println("RESET");
+			Thread.sleep(2);
+		} catch (InterruptedException ex) {
+			ex.printStackTrace();
 		}
 	}
 

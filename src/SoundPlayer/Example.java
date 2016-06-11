@@ -49,40 +49,40 @@ public class Example {
 			frame2.setVisible(true);
 			frame2.setSize(200, 200);
 			 */
-			snd.stopSound();
-			snd.playMusic("/child.wav", (int) (44100.0 * 9.0), -1);
+			snd.reset();
+			snd.playMusic("/res/child.wav", (int) (44100.0 * 9.0), -1);
 		}
 	}
 
 	static class Action2 implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 
-			snd.stopSound();
-			snd.playMusic("/epic.wav", (int) (44100.0 * 7.8), -1);
+			snd.reset();
+			snd.playMusic("/res/epic.wav", (int) (44100.0 * 7.8), -1);
 		}
 	}
 
 	static class Action3 implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 
-			snd.stopSound();
-			snd.playMusic("/funky.wav", (int) (44100.0 * 32.77), -1);
+			snd.reset();
+			snd.playMusic("/res/funky.wav", (int) (44100.0 * 32.77), -1);
 		}
 	}
 
 	static class Action4 implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 
-			snd.stopSound();
-			snd.playMusic("/varied_funky.wav", (int) (44100.0 * 8.18), -1);
+			snd.reset();
+			snd.playMusic("/res/varied_funky.wav", (int) (44100.0 * 8.18), -1);
 		}
 	}
 
 	static class Action5 implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 
-			snd.stopSound();
-			snd.playMusic("/spooky.wav");
+			snd.reset();
+			snd.playMusic("/res/spooky.wav");
 		}
 	}
 }
